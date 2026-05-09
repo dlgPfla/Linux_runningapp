@@ -1,0 +1,43 @@
+course_id,park_name,course_name,district,address,course_type,distance_km,surface_type,night_safe,level,linked_population_area,crowd_level,facility_score,route_available,source,confidence,note,population_score,route_score,confidence_score,final_recommend_score,recommend_grade,api_status
+C001,북한산,북한산 3km 입문 트레일 코스,서대문구,홍은1동 산1-45,mountain,3,trail,N,medium,미연결,unknown,80,N,raw_park+manual_course,medium,"산지형 자연공원 기반 짧은 트레일 코스, 경사 있음",0,0,0,80,B,active
+C002,북한산,북한산 6km 둘레길 러닝 코스,서대문구,홍은1동 산1-45,mountain,6,trail,N,hard,미연결,unknown,80,Y,raw_park+manual_demo_route,medium,"대표 루트 표시 후보, 자락길/트레일 중심 중장거리 코스",0,10,0,90,A,active
+C003,북한산,북한산 10km 장거리 트레일 코스,서대문구,홍은1동 산1-45,mountain,10,trail,N,hard,미연결,unknown,80,N,raw_park+manual_course,medium,"대형 산지형 공원 기반 장거리 코스, 체력 요구 높음",0,0,0,80,B,active
+C004,인왕산,인왕산 2.5km 산지 입문 코스,서대문구,홍제동 산1-1,mountain,2.5,trail,N,medium,(R1) 독립관앞 (서01-210),low,78,N,raw_park+population_summary,medium,"산지형 코스, 바위/오르막 구간 있어 초보자는 주의",5,0,0,83,B,active
+C005,인왕산,인왕산 5km 경사 트레일 코스,서대문구,홍제동 산1-1,mountain,5,trail,N,hard,(R1) 독립관앞 (서01-210),low,78,Y,raw_park+manual_demo_route,medium,"대표 루트 표시 후보, 경사와 자연환경이 뚜렷한 산지형 코스",5,10,0,93,A,active
+C006,인왕산,인왕산 7km 확장 트레일 코스,서대문구,홍제동 산1-1,mountain,7,trail,N,hard,(R1) 독립관앞 (서01-210),low,78,N,raw_park+manual_course,medium,"장거리 산지형 러닝 후보, 야간 러닝 비추천",5,0,0,83,B,active
+C007,안산,안산 2km 자락길 초보 코스,서대문구,연희 산 2-5 일대,trail,2,mixed,N,easy,(R14) 연대정문,high,90,N,raw_park+population_summary,high,"자락길 기반 짧은 코스, 주변 유동인구 high로 혼잡 주의",-15,0,5,80,B,active
+C008,안산,안산 4km 자락길 순환 코스,서대문구,연희 산 2-5 일대,trail,4,mixed,N,medium,(R14) 연대정문,high,90,Y,raw_park+manual_demo_route,high,"대표 루트 표시 후보, 자락길/둘레길 중심 러닝 적합 코스",-15,10,5,90,A,active
+C009,안산,안산 6km 둘레길 확장 코스,서대문구,연희 산 2-5 일대,trail,6,trail,N,medium,(R14) 연대정문,high,90,N,raw_park+population_summary,high,"대형 도시자연공원 기반 확장 코스, 일부 경사 존재",-15,0,5,80,B,active
+C010,안산,안산 8km 장거리 숲길 코스,서대문구,연희 산 2-5 일대,trail,8,trail,N,hard,(R14) 연대정문,high,90,N,raw_park+manual_course,medium,"안산 대형 면적을 활용한 장거리 러닝 후보, 체력 요구 높음",-15,0,0,75,B,active
+C011,백련산,백련산 2km 숲길 입문 코스,서대문구,홍은 산 11-123,mountain,2,trail,N,medium,미연결,unknown,85,N,raw_park+manual_course,medium,"숲길 기반 짧은 러닝 후보, 직접 연결된 유동인구 지점 없음",0,0,0,85,A,active
+C012,백련산,백련산 4km 숲길 순환 코스,서대문구,홍은 산 11-123,mountain,4,trail,N,medium,미연결,unknown,85,Y,raw_park+manual_demo_route,medium,"대표 루트 표시 후보, 완만한 숲길 중심 중거리 코스",0,10,0,95,A,active
+C013,백련산,백련산 6km 트레일 확장 코스,서대문구,홍은 산 11-123,mountain,6,trail,N,hard,미연결,unknown,85,N,raw_park+manual_course,medium,"대형 산지형 공원 기반 확장 코스, 야간 러닝 비추천",0,0,0,85,A,active
+C014,궁둥산,궁둥산 2km 생활체육 코스,서대문구,연희 산 106-1,mountain,2,mixed,N,medium,(R14) 연대정문,high,80,N,raw_park+population_summary,medium,"실내체육관/배드민턴장/화장실 시설 존재, 일부 경사",-15,0,0,65,C,active
+C015,궁둥산,궁둥산 3.5km 산지 순환 코스,서대문구,연희 산 106-1,mountain,3.5,trail,N,medium,(R14) 연대정문,high,80,N,raw_park+manual_course,medium,중소형 산지형 공원 기반 순환형 코스,-15,0,0,65,C,active
+C016,안산 근린공원,안산 근린공원 2km 자락길 연계 코스,서대문구,홍제동 산 33-44,park,2,mixed,Y,easy,(R1) 독립관앞 (서01-210),low,88,N,raw_park+population_summary,high,"자락길, 관리사무소, 화장실 등 시설 풍부",5,0,5,98,A,active
+C017,안산 근린공원,안산 근린공원 4km 무악정 코스,서대문구,홍제동 산 33-44,trail,4,mixed,N,medium,(R1) 독립관앞 (서01-210),low,88,Y,raw_park+manual_demo_route,high,"대표 루트 표시 후보, 자락길과 무악정 방향 코스",5,10,5,100,A,active
+C018,안산 근린공원,안산 근린공원 5.5km 확장 러닝 코스,서대문구,홍제동 산 33-44,trail,5.5,trail,N,medium,(R2) 서대문형무소역사관 전시관 앞,low,88,N,raw_park+population_summary,high,"근린공원 구간과 안산 자락길 연계, 시설 풍부",5,0,5,98,A,active
+C019,안산 근린공원,안산 근린공원 7km 장거리 연계 코스,서대문구,홍제동 산 33-44,trail,7,trail,N,hard,(R2) 서대문형무소역사관 전시관 앞,low,88,N,raw_park+manual_course,medium,안산 근린공원 구간에서 확장 가능한 장거리 후보,5,0,0,93,A,active
+C020,백련산 근린공원,백련산 근린공원 2km 운동시설 코스,서대문구,홍은동 산 11-54,park,2,mixed,Y,easy,미연결,unknown,82,N,raw_park+manual_course,medium,배드민턴장/화장실 기반 짧은 생활 러닝 코스,0,0,0,82,B,active
+C021,백련산 근린공원,백련산 근린공원 3.5km 숲길 코스,서대문구,홍은동 산 11-54,trail,3.5,trail,N,medium,미연결,unknown,82,N,raw_park+manual_course,medium,"근린공원 구간, 운동시설 및 화장실 존재",0,0,0,82,B,active
+C022,백련산 근린공원,백련산 근린공원 5km 확장 코스,서대문구,홍은동 산 11-54,trail,5,trail,N,medium,미연결,unknown,82,N,raw_park+manual_course,medium,백련산 방향으로 확장 가능한 중거리 후보,0,0,0,82,B,active
+C023,독립,독립공원 1.5km 평지 입문 코스,서대문구,현저동 101일대,park,1.5,paved,Y,easy,(R1) 독립관앞 (서01-210),low,85,N,raw_park+population_summary,high,"평지형 공원, 독립관앞 혼잡도 low로 초보자 추천",5,0,5,95,A,active
+C024,독립,독립공원 2.5km 역사공원 순환 코스,서대문구,현저동 101일대,park,2.5,paved,Y,easy,(R2) 서대문형무소역사관 전시관 앞,low,85,Y,raw_park+manual_demo_route,high,"대표 루트 표시 후보, 평지형 공원과 역사공간 순환 코스",5,10,5,100,A,active
+C025,독립,독립공원 3km 확장 산책로 코스,서대문구,현저동 101일대,park,3,mixed,Y,easy,(R3) 방문자센터앞 (서01-215),low,85,N,raw_park+population_summary,high,"초보자 적합, 주변 유동인구 low 지점과 연결 가능",5,0,5,95,A,active
+C026,중앙,중앙공원 1.2km 생활러닝 코스,서대문구,"남가좌동 384-1, 북가좌동 480",park,1.2,paved,Y,easy,미연결,unknown,65,N,raw_park+manual_course,medium,"소규모지만 평지형, 가벼운 생활 러닝 가능",0,0,0,65,C,active
+C027,중앙,중앙공원 2km 근린공원 순환 코스,서대문구,"남가좌동 384-1, 북가좌동 480",park,2,mixed,Y,easy,미연결,unknown,65,N,raw_park+manual_course,medium,정자/배드민턴장/화장실 기반 짧은 순환 코스,0,0,0,65,C,active
+C028,복주산,복주산 1.5km 언덕 입문 코스,서대문구,북아현동 113-61,park,1.5,mixed,Y,medium,(R37) 대현공원(이대),high,70,N,raw_park+population_summary,medium,"소형 언덕형 공원, 대현공원 주변 혼잡도 high 반영",-15,0,0,55,C,active
+C029,복주산,복주산 2.5km 경사 러닝 코스,서대문구,북아현동 113-61,park,2.5,trail,N,medium,(R37) 대현공원(이대),high,70,N,raw_park+manual_course,medium,"관리사무소/바닥분수/파고라 존재, 일부 경사",-15,0,0,55,C,active
+C030,실락,실락공원 1.5km 생활체육 코스,서대문구,홍은1동 71 일대,park,1.5,mixed,Y,easy,미연결,unknown,65,N,raw_park+manual_course,medium,"면적 17,452㎡, 정자/배드민턴장/운동시설 기반 짧은 코스",0,0,0,65,C,active
+C031,실락,실락공원 2.5km 확장 코스,서대문구,홍은1동 71 일대,park,2.5,mixed,Y,medium,미연결,unknown,65,N,raw_park+manual_course,medium,어린이공원 중 면적이 큰 편이라 제한적 러닝 후보로 사용,0,0,0,65,C,active
+C032,갈매연,갈매연공원 1.5km 평지 코스,서대문구,남가좌2동 일대,park,1.5,paved,Y,easy,미연결,unknown,60,N,raw_park+manual_course,medium,"면적 11,315㎡, 짧은 산책로형 러닝 가능",0,0,0,60,C,active
+C033,갈매연,갈매연공원 2.5km 생활러닝 코스,서대문구,남가좌2동 일대,park,2.5,mixed,Y,easy,미연결,unknown,60,N,raw_park+manual_course,medium,짧은 러닝 가능하나 대형 코스는 부적합,0,0,0,60,C,active
+C034,나비울,나비울공원 1.2km 생활러닝 코스,서대문구,북가좌동 168-32,park,1.2,paved,Y,easy,미연결,unknown,40,N,raw_park+manual_course,low,"면적 6,650㎡, 농구장 등 시설 있으나 코스 규모 제한적",0,0,-5,35,D,active
+C035,나비울,나비울공원 2km 짧은 순환 코스,서대문구,북가좌동 168-32,park,2,mixed,Y,easy,미연결,unknown,40,N,raw_park+manual_course,low,"생활권 짧은 코스 후보, 추천 우선순위는 낮음",0,0,-5,35,D,active
+C036,가재울,가재울공원 1.5km 평지 코스,서대문구,남가좌1동 123,park,1.5,paved,Y,easy,미연결,unknown,45,N,raw_park+manual_course,low,"면적 9,508㎡, 평지 기반 짧은 러닝 가능",0,0,-5,40,D,active
+C037,가재울,가재울공원 2km 생활러닝 코스,서대문구,남가좌1동 123,park,2,mixed,Y,easy,미연결,unknown,45,N,raw_park+manual_course,low,"소규모 생활권 러닝 후보, 장거리 코스는 부적합",0,0,-5,40,D,active
+C038,독립문,독립문 문화공원 1.2km 평지 코스,서대문구,영천동 265,park,1.2,paved,Y,easy,(R1) 독립관앞 (서01-210),low,80,N,raw_park+population_summary,medium,"완만하고 짧은 코스, 독립관앞 혼잡도 low 반영",5,0,0,85,A,active
+C039,독립문,독립문 문화공원 2km 안산자락길 연결 코스,서대문구,영천동 265,trail,2,mixed,Y,medium,(R2) 서대문형무소역사관 전시관 앞,low,80,Y,raw_park+manual_demo_route,medium,"문화공원과 안산자락길 연결 후보, 대표 루트 가능",5,10,0,95,A,active
+C040,신촌 연세로,신촌 연세로 3km 도심 러닝 코스,서대문구,신촌역 일대,urban,3,paved,Y,hard,(R16) 신촌역(2호선),high,50,N,manual_urban+population_summary,low,"도심형 보조 코스, 유동인구 high라 혼잡 주의",-15,0,-5,30,D,active
+C041,이대입구,이대입구 2km 도심 러닝 코스,서대문구,이대입구 일대,urban,2,paved,Y,medium,(R36) 이대입구,high,50,N,manual_urban+population_summary,low,"도심형 보조 코스, 접근성은 좋지만 혼잡도 high",-15,0,-5,30,D,active
+C042,대현공원,대현공원 주변 2km 생활러닝 코스,서대문구,대현동 일대,urban,2,paved,Y,medium,(R37) 대현공원(이대),high,50,N,manual_urban+population_summary,low,"인구 밀집 지점 기반 보조 코스, 혼잡 경고 표시용",-15,0,-5,30,D,active
