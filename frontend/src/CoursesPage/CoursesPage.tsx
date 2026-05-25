@@ -1,16 +1,43 @@
-import React, { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { MouseEvent } from 'react';
 import styles from './CoursesPage.module.css';
-import type { Course, FilterState, FilterKey } from '../../types';
-import { MOCK_COURSES } from '../../data/mockData';
+import { fetchCourses } from '../api/coursesApi';
+import type { Course, FilterState, FilterKey } from '../types';
+import { MOCK_COURSES } from '../data/mockData';
 
 const LEVEL_KO: Record<string, string> = { easy: '초급', medium: '중급', hard: '고급' };
 const CROWD_KO: Record<string, string> = { low: '한산', medium: '보통', high: '혼잡', unknown: '미확인' };
+const DEFAULT_COURSE_IMAGE = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80';
+
+function getCourseImage(course: Course) {
+  return course.image_url || DEFAULT_COURSE_IMAGE;
+}
+
+function getCourseLocation(course: Course) {
+  return course.park_name || course.location || '서대문구';
+}
+
+function getCourseDescription(course: Course) {
+  return course.note || course.description || '';
+}
+
+function FilterOption({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className={`${styles.fOpt} ${active ? styles.fOptOn : ''}`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+}
 
 // ══════════════════════════════════════
 // 코스 상세 모달
 // ══════════════════════════════════════
 function CourseModal({ course, onClose }: { course: Course; onClose: () => void }) {
-  function onBackdrop(e: React.MouseEvent) {
+  function onBackdrop(e: MouseEvent) {
     if (e.target === e.currentTarget) onClose();
   }
 
@@ -18,6 +45,9 @@ function CourseModal({ course, onClose }: { course: Course; onClose: () => void 
     course.crowd_level === 'low' ? styles.infoLow
     : course.crowd_level === 'high' ? styles.infoHigh
     : styles.infoMid;
+  const imageUrl = getCourseImage(course);
+  const location = getCourseLocation(course);
+  const description = getCourseDescription(course);
 
   return (
     <div className={styles.backdrop} onClick={onBackdrop}>
@@ -25,10 +55,10 @@ function CourseModal({ course, onClose }: { course: Course; onClose: () => void 
 
         {/* 이미지 + 닫기 + 오버레이 텍스트 */}
         <div className={styles.modalImgWrap}>
-          <img src={course.image_url} alt={course.course_name} className={styles.modalImg} />
+          <img src={imageUrl} alt={course.course_name} className={styles.modalImg} />
           <button className={styles.closeBtn} onClick={onClose} aria-label="닫기">✕</button>
           <div className={styles.modalImgOverlay}>
-            <p className={styles.modalLocation}>{course.location}</p>
+            <p className={styles.modalLocation}>{location}</p>
             <h2 className={styles.modalName}>{course.course_name}</h2>
           </div>
         </div>
@@ -68,7 +98,7 @@ function CourseModal({ course, onClose }: { course: Course; onClose: () => void 
           </div>
 
           {/* 설명 */}
-          <p className={styles.modalDesc}>{course.description}</p>
+          <p className={styles.modalDesc}>{description}</p>
 
           {/* 태그 */}
           <div className={styles.modalTags}>
@@ -103,6 +133,8 @@ function CourseRow({ course, onClick }: { course: Course; onClick: () => void })
     course.crowd_level === 'low' ? styles.chipLow
     : course.crowd_level === 'high' ? styles.chipHigh
     : styles.chipMid;
+  const imageUrl = getCourseImage(course);
+  const location = getCourseLocation(course);
 
   return (
     <article
@@ -113,14 +145,14 @@ function CourseRow({ course, onClick }: { course: Course; onClick: () => void })
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
     >
       <div className={styles.rowImgWrap}>
-        <img src={course.image_url} alt={course.course_name} className={styles.rowImg} loading="lazy" />
+        <img src={imageUrl} alt={course.course_name} className={styles.rowImg} loading="lazy" />
       </div>
       <div className={styles.rowBody}>
         <div className={styles.rowTop}>
           <span className={`${styles.badge} ${course.recommend_grade === 'A' ? styles.badgeA : styles.badgeB}`}>
             {course.recommend_grade}등급
           </span>
-          <p className={styles.rowLocation}>{course.location}</p>
+          <p className={styles.rowLocation}>{location}</p>
         </div>
         <h3 className={styles.rowName}>{course.course_name}</h3>
         <div className={styles.rowChips}>
@@ -145,16 +177,47 @@ function CourseRow({ course, onClick }: { course: Course; onClick: () => void })
 // CoursesPage
 // ══════════════════════════════════════
 export default function CoursesPage() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>({ level: '', crowd: '', nightSafe: '', maxKm: '' });
   const [sort, setSort] = useState<'score' | 'distance'>('score');
   const [selected, setSelected] = useState<Course | null>(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    fetchCourses()
+      .then((apiCourses) => {
+        if (!ignore) {
+          setCourses(apiCourses);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          setCourses(MOCK_COURSES);
+          setError(err instanceof Error ? err.message : 'Failed to fetch courses');
+        }
+        console.warn('API courses failed, using mock fallback', err);
+      })
+      .finally(() => {
+        if (!ignore) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   function toggle(key: FilterKey, val: string) {
     setFilters((prev) => ({ ...prev, [key]: prev[key] === val ? '' : val }));
   }
 
   const filtered = useMemo(() => {
-    let list = [...MOCK_COURSES];
+    let list = [...courses];
     if (filters.level)             list = list.filter((c) => c.level === filters.level);
     if (filters.nightSafe === 'Y') list = list.filter((c) => c.night_safe === 'Y');
     if (filters.crowd === 'low')    list = list.filter((c) => c.crowd_level === 'low' || c.crowd_level === 'unknown');
@@ -164,19 +227,13 @@ export default function CoursesPage() {
     if (sort === 'score')    list.sort((a, b) => b.final_recommend_score - a.final_recommend_score);
     if (sort === 'distance') list.sort((a, b) => a.distance_km - b.distance_km);
     return list;
-  }, [filters, sort]);
+  }, [courses, filters, sort]);
 
-  function Opt({ label, fKey, val }: { label: string; fKey: FilterKey; val: string }) {
-    return (
-      <button
-        type="button"
-        className={`${styles.fOpt} ${filters[fKey] === val ? styles.fOptOn : ''}`}
-        onClick={() => toggle(fKey, val)}
-      >
-        {label}
-      </button>
-    );
-  }
+  const apiStatusText = loading
+    ? 'API 데이터 확인 중'
+    : error
+      ? 'API 연결 실패로 임시 데이터 표시 중'
+      : '실제 API 데이터 사용 중';
 
   return (
     <div className={styles.page}>
@@ -187,7 +244,8 @@ export default function CoursesPage() {
       <div className={styles.header}>
         <div>
           <h1 className={styles.pageTitle}>코스 전체</h1>
-          <p className={styles.pageSub}>서대문구 러닝 코스 42개 · 카드를 클릭하면 상세 정보를 볼 수 있어요</p>
+          <p className={styles.pageSub}>서대문구 러닝 코스 {courses.length}개 · 카드를 클릭하면 상세 정보를 볼 수 있어요</p>
+          <p className={styles.pageSub}>{apiStatusText}</p>
         </div>
         <div className={styles.sortRow}>
           <span className={styles.sortLbl}>정렬</span>
@@ -204,29 +262,29 @@ export default function CoursesPage() {
           <div className={styles.fGroup}>
             <p className={styles.fLbl}>난이도</p>
             <div className={styles.fOpts}>
-              <Opt label="초급" fKey="level" val="easy" />
-              <Opt label="중급" fKey="level" val="medium" />
-              <Opt label="고급" fKey="level" val="hard" />
+              <FilterOption label="초급" active={filters.level === 'easy'} onClick={() => toggle('level', 'easy')} />
+              <FilterOption label="중급" active={filters.level === 'medium'} onClick={() => toggle('level', 'medium')} />
+              <FilterOption label="고급" active={filters.level === 'hard'} onClick={() => toggle('level', 'hard')} />
             </div>
           </div>
           <div className={styles.fGroup}>
             <p className={styles.fLbl}>혼잡도</p>
             <div className={styles.fOpts}>
-              <Opt label="한산한 곳" fKey="crowd" val="low" />
-              <Opt label="보통까지" fKey="crowd" val="medium" />
+              <FilterOption label="한산한 곳" active={filters.crowd === 'low'} onClick={() => toggle('crowd', 'low')} />
+              <FilterOption label="보통까지" active={filters.crowd === 'medium'} onClick={() => toggle('crowd', 'medium')} />
             </div>
           </div>
           <div className={styles.fGroup}>
             <p className={styles.fLbl}>야간 안전</p>
             <div className={styles.fOpts}>
-              <Opt label="야간 안전 필요" fKey="nightSafe" val="Y" />
+              <FilterOption label="야간 안전 필요" active={filters.nightSafe === 'Y'} onClick={() => toggle('nightSafe', 'Y')} />
             </div>
           </div>
           <div className={styles.fGroup}>
             <p className={styles.fLbl}>최대 거리</p>
             <div className={styles.fOpts}>
-              <Opt label="5km 이내" fKey="maxKm" val="5" />
-              <Opt label="10km 이내" fKey="maxKm" val="10" />
+              <FilterOption label="5km 이내" active={filters.maxKm === '5'} onClick={() => toggle('maxKm', '5')} />
+              <FilterOption label="10km 이내" active={filters.maxKm === '10'} onClick={() => toggle('maxKm', '10')} />
             </div>
           </div>
 
@@ -240,7 +298,7 @@ export default function CoursesPage() {
         <div className={styles.list}>
           <p className={styles.resultCount}><strong>{filtered.length}개</strong> 코스</p>
           {filtered.length === 0
-            ? <div className={styles.empty}>조건에 맞는 코스가 없어요.<br />필터를 조정해보세요.</div>
+            ? <div className={styles.empty}>{loading ? '코스를 불러오는 중이에요.' : '조건에 맞는 코스가 없어요.'}<br />{loading ? '잠시만 기다려주세요.' : '필터를 조정해보세요.'}</div>
             : filtered.map((c) => (
                 <CourseRow key={c.course_id} course={c} onClick={() => setSelected(c)} />
               ))

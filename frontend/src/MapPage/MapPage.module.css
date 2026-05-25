@@ -1,13 +1,82 @@
-.page { max-width: 1200px; margin: 0 auto; padding: 40px; }
+.page { max-width: 1320px; margin: 0 auto; padding: 40px; background: #F7FAF2; }
 .header { margin-bottom: 24px; }
-.title { font-size: 28px; font-weight: 700; color: #1C2212; letter-spacing: -0.03em; margin-bottom: 6px; }
+.title { font-size: 28px; font-weight: 700; color: #1C2212; letter-spacing: 0; margin-bottom: 6px; }
 .sub { font-size: 13px; color: #6B7A61; }
-.mapArea { background: #fff; border: 0.5px solid #D6E9C8; border-radius: 20px; min-height: 520px; display: flex; align-items: center; justify-content: center; }
-.placeholder { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.contentGrid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: stretch; }
+.mapArea { position: relative; width: 100%; background: #fff; border: 0.5px solid #D7E6C4; border-radius: 20px; min-height: 620px; height: 620px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.placeholder { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px; }
 .icon { font-size: 48px; }
-.ptitle { font-size: 18px; font-weight: 700; color: #3D4A35; letter-spacing: -0.02em; }
-.psub { font-size: 13px; color: #99A890; line-height: 1.6; }
-.apiBox { background: #EBF5E4; border: 0.5px solid #D6E9C8; border-radius: 10px; padding: 14px 20px; display: flex; flex-direction: column; gap: 5px; margin-top: 6px; text-align: left; }
-.apiLbl { font-size: 11px; color: #6B7A61; letter-spacing: 0.04em; margin-bottom: 3px; }
-.apiCode { font-family: 'DM Mono', monospace; font-size: 12px; color: #84B179; }
-@media (max-width: 768px) { .page { padding: 24px 16px; } }
+.ptitle { font-size: 18px; font-weight: 700; color: #3D4A35; letter-spacing: 0; }
+.psub { font-size: 13px; color: #6B7A61; line-height: 1.6; }
+.apiBox { background: #EBF5E4; border: 0.5px solid #D7E6C4; border-radius: 10px; padding: 14px 20px; display: flex; flex-direction: column; gap: 5px; margin-top: 6px; text-align: left; }
+.apiLbl { font-size: 11px; color: #6B7A61; letter-spacing: 0; margin-bottom: 3px; }
+.apiCode { font-family: 'DM Mono', monospace; font-size: 12px; color: #3F6F24; }
+.mapCanvas { width: 100%; min-height: 620px; height: 620px; align-self: stretch; }
+.routeSvgOverlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 12; }
+.mapOverlay { position: absolute; left: 18px; right: 18px; bottom: 18px; z-index: 30; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; pointer-events: none; }
+.legend { background: rgba(255,255,255,0.95); border: 0.5px solid #D7E6C4; border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px 12px; box-shadow: 0 4px 16px rgba(61,74,53,0.08); max-width: 620px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #3D4A35; white-space: nowrap; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+.legendLow { background: #84B179; }
+.legendMedium { background: #F5A623; }
+.legendHigh { background: #E84C4C; }
+.legend .legendPark { width: 12px; height: 12px; border-radius: 4px 4px 8px 8px; background: #3F6F24; transform: rotate(45deg); }
+.legend .legendRoute { position: relative; width: 28px; height: 3px; border-radius: 999px; background: rgba(255,107,44,0.65); overflow: visible; }
+.legend .legendRoute::after { content: ''; position: absolute; right: -2px; top: 50%; width: 5px; height: 5px; border: 1.5px solid rgba(255,255,255,0.9); border-radius: 999px; background: rgba(255,107,44,0.9); box-shadow: 0 0 4px rgba(255,107,44,0.45); transform: translateY(-50%); }
+.status { background: rgba(255,255,255,0.95); border: 0.5px solid #D7E6C4; border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #6B7A61; box-shadow: 0 4px 16px rgba(61,74,53,0.08); text-align: right; }
+.marker { width: 18px; height: 18px; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(28,34,18,0.25); cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.marker:hover { transform: scale(1.2); box-shadow: 0 4px 12px rgba(28,34,18,0.32); }
+.markerLow { background: #84B179; }
+.markerMedium { background: #F5A623; }
+.markerHigh { background: #E84C4C; }
+.parkMarker { position: relative; min-width: 86px; max-width: 140px; border: 2px solid #fff; border-radius: 14px; background: #3F6F24; color: #fff; box-shadow: 0 8px 22px rgba(28,34,18,0.28); padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.parkMarker::after { content: ''; width: 12px; height: 12px; background: #3F6F24; border-right: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(45deg); position: absolute; bottom: -6px; }
+.parkMarker:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(28,34,18,0.34); }
+.parkMarker strong { width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 1.2; }
+.parkMarker span { font-size: 10px; opacity: 0.84; }
+.infoWindow { min-width: 180px; background: #fff; border: 0.5px solid #D7E6C4; border-radius: 12px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(28,34,18,0.18); display: flex; flex-direction: column; gap: 4px; }
+.infoWindow strong { font-size: 13px; color: #1C2212; line-height: 1.35; }
+.infoWindow span { font-size: 11px; color: #6B7A61; }
+.infoWindow em { width: fit-content; margin-top: 3px; background: #EBF5E4; border-radius: 999px; padding: 3px 8px; font-size: 11px; font-style: normal; font-weight: 700; color: #3D4A35; }
+.routeEndpoint { min-width: 42px; height: 26px; padding: 0 10px; border: 2px solid #fff; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 800; box-shadow: 0 6px 18px rgba(28,34,18,0.28); }
+.routeStart { background: #FF6B35; }
+.routeEnd { background: #1C2212; }
+.sidePanel { min-height: 620px; background: #fff; border: 0.5px solid #D7E6C4; border-radius: 20px; padding: 18px; box-shadow: 0 12px 34px rgba(61,74,53,0.07); overflow: auto; }
+.panelHeader { padding-bottom: 14px; border-bottom: 0.5px solid #D7E6C4; margin-bottom: 14px; }
+.panelEyebrow { display: block; font-size: 11px; font-weight: 700; color: #84B179; margin-bottom: 7px; }
+.panelHeader h2, .emptyPanel h2 { font-size: 20px; color: #1C2212; margin: 0 0 6px; letter-spacing: 0; }
+.panelHeader p, .emptyPanel p { font-size: 13px; color: #6B7A61; line-height: 1.6; margin: 0; }
+.emptyPanel { height: 100%; min-height: 420px; display: flex; flex-direction: column; justify-content: center; }
+.courseList { display: flex; flex-direction: column; gap: 12px; }
+.courseCard { border: 0.5px solid #D7E6C4; border-radius: 14px; padding: 14px; background: #FBFDF8; transition: border-color 0.12s ease, box-shadow 0.12s ease; }
+.courseCardSelected { border-color: #84B179; box-shadow: 0 8px 22px rgba(132,177,121,0.16); }
+.courseCardTop { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+.courseCardTop h3 { font-size: 15px; line-height: 1.35; color: #1C2212; margin: 0; letter-spacing: 0; }
+.grade { flex: 0 0 auto; background: #EBF5E4; color: #3F6F24; border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 700; }
+.courseMeta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.courseMeta span { border: 0.5px solid #D7E6C4; border-radius: 999px; padding: 4px 8px; color: #3D4A35; font-size: 11px; background: #fff; }
+.courseScore { display: flex; align-items: baseline; gap: 6px; color: #6B7A61; margin-bottom: 12px; }
+.courseScore strong { font-size: 24px; color: #3F6F24; }
+.courseScore span { font-size: 12px; }
+.courseScore em { margin-left: auto; font-size: 11px; font-style: normal; color: #6B7A61; }
+.courseActions { display: flex; align-items: center; gap: 8px; }
+.courseActions button { border: 0.5px solid #D7E6C4; border-radius: 10px; background: #fff; color: #3D4A35; height: 34px; padding: 0 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.courseActions button:hover { border-color: #84B179; color: #3F6F24; }
+.courseActions .primaryAction { background: #3F6F24; color: #fff; border-color: #3F6F24; }
+.courseActions .primaryAction:hover { background: #2F6B2F; color: #fff; }
+.routeMissing { font-size: 12px; color: #99A890; }
+.courseDetail { margin-top: 12px; border-top: 0.5px solid #D7E6C4; padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.courseDetail p { margin: 0; font-size: 12px; line-height: 1.6; color: #6B7A61; }
+.courseDetail dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.courseDetail div { background: #fff; border: 0.5px solid #D7E6C4; border-radius: 10px; padding: 8px; }
+.courseDetail dt { font-size: 10px; color: #99A890; margin-bottom: 3px; }
+.courseDetail dd { font-size: 12px; color: #3D4A35; margin: 0; font-weight: 700; }
+.routeNotice { background: #EBF5E4; border: 0.5px solid #D7E6C4; border-radius: 10px; padding: 9px 10px; color: #3F6F24 !important; font-weight: 700; }
+
+@media (max-width: 980px) {
+  .page { padding: 24px 16px; }
+  .contentGrid { grid-template-columns: 1fr; }
+  .sidePanel { min-height: auto; max-height: none; }
+  .mapOverlay { align-items: stretch; flex-direction: column; }
+  .status { text-align: left; }
+}

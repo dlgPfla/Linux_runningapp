@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Layout from './components/Layout/Layout';
-import HomePage from './pages/HomePage/HomePage';
-import CoursesPage from './pages/CoursesPage/CoursesPage';
-import MapPage from './pages/MapPage/MapPage';
-import MyPage from './pages/MyPage/MyPage';
+import HomePage from './pages/HomePage';
+import CoursesPage from './CoursesPage/CoursesPage';
+import MapPage from './MapPage/MapPage';
+import MyPage from './MyPage/MyPage';
 
 type Path = '/' | '/courses' | '/map' | '/mypage';
 
