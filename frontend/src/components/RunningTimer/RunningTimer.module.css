@@ -1,0 +1,108 @@
+.timerBar {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 2000;
+  width: min(720px, calc(100% - 32px));
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 0.5px solid #D7E6C4;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: 0 16px 44px rgba(28,34,18,0.18);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  transform: translateX(-50%);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #3F6F24;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #84B179;
+  box-shadow: 0 0 0 5px rgba(132,177,121,0.18);
+}
+
+.courseInfo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.courseInfo strong {
+  overflow: hidden;
+  color: #1C2212;
+  font-size: 14px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courseInfo span {
+  color: #6B7A61;
+  font-size: 12px;
+}
+
+.elapsed {
+  min-width: 64px;
+  color: #3F6F24;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-align: right;
+}
+
+.timerBar button {
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  background: #3F6F24;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0 16px;
+}
+
+.timerBar button:hover {
+  background: #2F6B2F;
+}
+
+@media (max-width: 640px) {
+  .timerBar {
+    grid-template-columns: 1fr auto;
+    gap: 10px 12px;
+  }
+
+  .status {
+    grid-column: 1 / 2;
+  }
+
+  .courseInfo {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+
+  .elapsed {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+  }
+
+  .timerBar button {
+    grid-column: 2 / 3;
+    order: 4;
+  }
+}

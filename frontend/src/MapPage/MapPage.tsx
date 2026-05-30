@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchCourses } from '../api/coursesApi';
 import { fetchCourseRoutes } from '../api/courseRoutesApi';
 import { fetchPopulation, type PopulationPoint } from '../api/populationApi';
-import type { Course, CourseRoute } from '../types';
+import type { Course, CourseRoute, RunningCourse } from '../types';
 import styles from './MapPage.module.css';
 
 const KAKAO_KEY = import.meta.env.VITE_KAKAO_MAP_KEY;
@@ -33,6 +33,11 @@ type ValidRoutePoint = {
   latitude: number;
   longitude: number;
 };
+
+interface MapPageProps {
+  currentRun: RunningCourse | null;
+  onStartRun: (course: Course) => void;
+}
 
 interface KakaoLatLngBoundsInstance {
   extend: (latlng: KakaoLatLngInstance) => void;
@@ -199,7 +204,7 @@ function groupCoursesByPark(courses: CourseWithCoordinates[]): ParkCourseGroup[]
   return Array.from(groups.values());
 }
 
-export default function MapPage() {
+export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapRef = useRef<KakaoMapWithCamera | null>(null);
   const populationOverlaysRef = useRef<KakaoOverlayInstance[]>([]);
@@ -207,6 +212,7 @@ export default function MapPage() {
   const infoOverlayRef = useRef<KakaoOverlayInstance | null>(null);
   const routePolylineRefs = useRef<Array<{ setMap: (map: KakaoMapInstance | null) => void }>>([]);
   const routeOverlayRefs = useRef<KakaoOverlayInstance[]>([]);
+  const previousRunIdRef = useRef<string | null>(null);
 
   const [map, setMap] = useState<KakaoMapInstance | null>(null);
   const [population, setPopulation] = useState<PopulationPoint[]>([]);
@@ -239,6 +245,22 @@ export default function MapPage() {
     [coursesWithCoordinates],
   );
 
+  const isRunningMode = Boolean(currentRun);
+
+  const runningParkGroup = useMemo(() => {
+    if (!currentRun) return null;
+    return parkGroups.find((group) => (
+      group.courses.some((course) => course.course_id === currentRun.courseId)
+    )) || null;
+  }, [currentRun, parkGroups]);
+
+  const visibleParkGroups = useMemo(() => {
+    if (!isRunningMode) return parkGroups;
+    return runningParkGroup ? [runningParkGroup] : [];
+  }, [isRunningMode, parkGroups, runningParkGroup]);
+
+  const displayedParkGroup = isRunningMode ? runningParkGroup : selectedParkGroup;
+
   const routeMap = useMemo(() => {
     const mapByCourseId = new Map<string, CourseRoute>();
     courseRoutes.forEach((route) => {
@@ -247,7 +269,7 @@ export default function MapPage() {
     return mapByCourseId;
   }, [courseRoutes]);
 
-  function clearRouteLayer() {
+  const clearRouteLayer = useCallback(() => {
     routePolylineRefs.current.forEach((line) => line.setMap(null));
     routePolylineRefs.current = [];
 
@@ -255,7 +277,8 @@ export default function MapPage() {
     routeOverlayRefs.current = [];
     setSelectedRoutePoints([]);
     setRouteSvgPoints('');
-  }
+    setSelectedRouteMessage('');
+  }, []);
 
   const updateRouteSvgPath = useCallback((validPoints: ValidRoutePoint[]) => {
     if (!kakaoMapRef.current || !window.kakao?.maps || !mapContainerRef.current) return;
@@ -293,6 +316,13 @@ export default function MapPage() {
   useEffect(() => {
     console.log('park groups:', parkGroups.length);
   }, [parkGroups]);
+
+  useEffect(() => {
+    console.log('currentRun:', currentRun);
+    console.log('is running mode:', Boolean(currentRun));
+    console.log('visible park groups:', visibleParkGroups.length);
+    console.log('selected running course id:', currentRun?.courseId);
+  }, [currentRun, visibleParkGroups]);
 
   useEffect(() => {
     console.log('selected park:', selectedParkGroup?.parkName);
@@ -516,7 +546,7 @@ export default function MapPage() {
     parkOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
     parkOverlaysRef.current = [];
 
-    parkGroups.forEach((group) => {
+    visibleParkGroups.forEach((group) => {
       const position = new kakaoMaps.LatLng(group.latitude, group.longitude);
       const markerElement = document.createElement('button');
       markerElement.type = 'button';
@@ -549,7 +579,7 @@ export default function MapPage() {
       parkOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
       parkOverlaysRef.current = [];
     };
-  }, [map, parkGroups]);
+  }, [map, visibleParkGroups]);
 
   const moveToPark = (group: ParkCourseGroup) => {
     const kakaoMaps = window.kakao?.maps;
@@ -567,7 +597,7 @@ export default function MapPage() {
     moveToPark(group);
   };
 
-  const handleShowRoute = (course: CourseWithCoordinates) => {
+  const handleShowRoute = useCallback((course: CourseWithCoordinates) => {
     console.log('map container ref:', mapContainerRef.current);
     console.log('kakao map ref:', kakaoMapRef.current);
     console.log('kakao map getCenter exists:', typeof kakaoMapRef.current?.getCenter);
@@ -592,6 +622,9 @@ export default function MapPage() {
     setSelectedCourse(course);
 
     if (!matchedRoute) {
+      if (Number.isFinite(course.latitude) && Number.isFinite(course.longitude)) {
+        currentMap.setCenter(new kakaoMaps.LatLng(course.latitude, course.longitude));
+      }
       setSelectedRouteMessage(ROUTE_UNAVAILABLE_MESSAGE);
       return;
     }
@@ -613,6 +646,9 @@ export default function MapPage() {
     console.log('valid route points:', validPoints);
 
     if (validPoints.length < 2) {
+      if (Number.isFinite(course.latitude) && Number.isFinite(course.longitude)) {
+        currentMap.setCenter(new kakaoMaps.LatLng(course.latitude, course.longitude));
+      }
       setSelectedRouteMessage('루트 좌표가 부족해서 선을 표시할 수 없습니다.');
       return;
     }
@@ -681,7 +717,43 @@ export default function MapPage() {
     window.setTimeout(() => updateRouteSvgPath(validPoints), 100);
 
     setSelectedRouteMessage('주황색 점과 반투명 선으로 선택한 대표 루트를 표시하고 있습니다.');
-  };
+  }, [clearRouteLayer, courseRoutes, updateRouteSvgPath]);
+
+  useEffect(() => {
+    if (!currentRun) {
+      if (!previousRunIdRef.current) return undefined;
+
+      previousRunIdRef.current = null;
+      const timeoutId = window.setTimeout(() => {
+        clearRouteLayer();
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
+    }
+
+    previousRunIdRef.current = currentRun.courseId;
+
+    if (!runningParkGroup) return undefined;
+
+    const runningCourse = runningParkGroup.courses.find(
+      (course) => course.course_id === currentRun.courseId,
+    );
+    const matchedRoute = courseRoutes.find(
+      (route) => route.course_id.trim() === currentRun.courseId.trim(),
+    );
+
+    console.log('matched running route:', matchedRoute?.course_id);
+
+    if (runningCourse) {
+      const timeoutId = window.setTimeout(() => {
+        handleShowRoute(runningCourse);
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
+    }
+
+    return undefined;
+  }, [clearRouteLayer, courseRoutes, currentRun, handleShowRoute, runningParkGroup]);
 
   const shouldShowPlaceholder = !KAKAO_KEY || mapError;
   const isLoading = populationLoading || coursesLoading || routesLoading;
@@ -689,7 +761,7 @@ export default function MapPage() {
   const statusText = isLoading
     ? '지도 데이터를 불러오는 중입니다'
     : statusErrors.join(' · ')
-      || `${population.length}개 혼잡도 지점 · ${parkGroups.length}개 공원 표시 중`;
+      || `${population.length}개 혼잡도 지점 · ${visibleParkGroups.length}개 공원 표시 중`;
 
   return (
     <div className={styles.page}>
@@ -759,16 +831,16 @@ export default function MapPage() {
         </div>
 
         <aside className={styles.sidePanel}>
-          {selectedParkGroup ? (
+          {displayedParkGroup ? (
             <>
               <div className={styles.panelHeader}>
                 <span className={styles.panelEyebrow}>공원 대표 마커</span>
-                <h2>{selectedParkGroup.parkName}</h2>
-                <p>{selectedParkGroup.courses.length}개 코스</p>
+                <h2>{displayedParkGroup.parkName}</h2>
+                <p>{displayedParkGroup.courses.length}개 코스</p>
               </div>
 
               <div className={styles.courseList}>
-                {selectedParkGroup.courses.map((course) => {
+                {displayedParkGroup.courses.map((course) => {
                   const route = getRouteWithEnoughPoints(routeMap.get(course.course_id.trim()));
                   const hasRoute = Boolean(route);
                   const isSelected = selectedCourse?.course_id === course.course_id;
@@ -794,7 +866,7 @@ export default function MapPage() {
                         <em>{course.route_available === 'Y' ? '루트 후보' : '루트 미등록'}</em>
                       </div>
                       <div className={styles.courseActions}>
-                        <button type="button" onClick={() => handleViewCourse(course, selectedParkGroup)}>
+                        <button type="button" onClick={() => handleViewCourse(course, displayedParkGroup)}>
                           코스 보기
                         </button>
                         {hasRoute ? (
@@ -808,6 +880,17 @@ export default function MapPage() {
                         ) : (
                           <span className={styles.routeMissing}>루트 준비 전</span>
                         )}
+                        <button
+                          type="button"
+                          className={styles.runAction}
+                          disabled={Boolean(currentRun)}
+                          onClick={() => {
+                            handleShowRoute(course);
+                            onStartRun(course);
+                          }}
+                        >
+                          {currentRun ? '러닝 진행 중' : '이 코스 러닝 시작'}
+                        </button>
                       </div>
                       {isSelected && (
                         <div className={styles.courseDetail}>

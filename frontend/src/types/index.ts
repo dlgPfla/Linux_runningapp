@@ -49,3 +49,21 @@ export interface CourseRoute {
   course_id: string;
   points: CourseRoutePoint[];
 }
+
+export interface RunningCourse {
+  courseId: string;
+  courseName: string;
+  parkName: string;
+  distanceKm: number;
+  startedAt: number;
+}
+
+export interface RunRecord {
+  id: string;
+  courseId: string;
+  courseName: string;
+  parkName: string;
+  distanceKm: number;
+  startedAt: string;
+  durationSeconds: number;
+}
