@@ -1,6 +1,13 @@
 import requests
 import csv
 import time
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+OUTPUT_CSV = os.path.join(DATA_DIR, "course_routes.csv")
+
+os.makedirs(DATA_DIR, exist_ok=True)
 
 def get_walking_route(waypoints):
     """OSRM 무료 API - 키 없음, 완전 무료"""
@@ -80,7 +87,7 @@ for course_id, waypoints in courses.items():
     
     time.sleep(1)  # OSRM 서버 부하 방지
 
-with open("data/course_routes.csv", "w", newline="", encoding="utf-8") as f:
+with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
     csv.writer(f).writerows(all_rows)
 
-print(f"\n총 {len(all_rows)-1}개 포인트 저장 완료!")
+print(f"\n총 {len(all_rows)-1}개 포인트 저장 완료: {OUTPUT_CSV}")
