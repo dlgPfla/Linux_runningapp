@@ -17,6 +17,9 @@ FROM nginx:alpine
 # 빌드 결과물 복사
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# React Router 새로고침 대응용 nginx 설정 복사
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # 80포트 오픈
 EXPOSE 80
 
