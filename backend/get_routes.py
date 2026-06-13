@@ -3,6 +3,7 @@ import csv
 import time
 import os
 
+# 현재 파일 기준으로 절대 경로 설정(어디서 실행해도 경로 오류 없음)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 OUTPUT_CSV = os.path.join(DATA_DIR, "course_routes.csv")
