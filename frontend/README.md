@@ -1,73 +1,102 @@
-# React + TypeScript + Vite
+# 서대문 GO Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+서대문구의 러닝 코스를 조회하고 지도에서 확인하며, 간단한 러닝 기록을 남길 수 있도록 만든 프론트엔드 프로젝트임.
 
-Currently, two official plugins are available:
+## 프론트엔드 역할
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React와 TypeScript를 사용해 사용자 화면을 구성함.
+- Flask API 응답을 받아 실제 코스와 유동인구 데이터를 화면에 표시함.
+- Kakao Map API를 사용해 지도, 마커, 러닝 루트를 시각화함.
+- 러닝 시작부터 타이머 실행, 종료 후 내 기록 확인까지의 흐름을 프론트엔드 state로 관리함.
 
-## React Compiler
+## 사용 기술
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React**: 화면을 컴포넌트 단위로 구성하고 상태를 관리하기 위함.
+- **TypeScript**: API 데이터와 컴포넌트에서 사용하는 값의 타입을 명확하게 관리하기 위함.
+- **Vite**: 빠른 개발 서버 실행과 프론트엔드 빌드를 사용하기 위함.
+- **Kakao Map API**: 서대문구 지도와 공원 마커, 유동인구 마커, 러닝 루트를 표시하기 위함.
 
-## Expanding the ESLint configuration
+## 주요 화면
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 홈 화면
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 전체 코스 수, 한산한 코스 수, 야간 안전 코스 수를 표시함.
+- 난이도, 혼잡도, 야간 안전, 거리 조건을 설정해 코스를 확인할 수 있도록 구성함.
+- 추천 점수가 높은 코스를 간단히 확인할 수 있도록 구현함.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 코스 전체 화면
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- 실제 백엔드 코스 데이터를 목록으로 표시함.
+- 난이도, 혼잡도, 야간 안전, 거리 조건을 이용해 코스를 필터링함.
+- 추천순과 거리순으로 코스를 정렬할 수 있도록 구현함.
+
+### 지도 화면
+
+- Kakao Map API를 사용해 서대문구 지도를 표시함.
+- 같은 `park_name`을 가진 코스를 하나의 공원 대표 마커로 묶어 표시함.
+- 공원 마커를 클릭하면 해당 공원에 포함된 코스 리스트를 표시함.
+- 유동인구 혼잡도 마커와 공원 대표 마커를 서로 분리해 관리함.
+- 선택한 코스의 루트와 출발 및 도착 위치를 지도 위에 표시함.
+- 코스를 선택해 러닝을 시작할 수 있도록 구현함.
+
+### 내 기록 화면
+
+- 러닝 종료 후 저장된 기록을 목록으로 표시함.
+- 총 러닝 횟수, 누적 거리, 누적 시간, 최근 러닝 날짜를 계산해 표시함.
+- 각 기록에서 공원명, 코스명, 거리, 러닝 시간을 확인할 수 있도록 구성함.
+
+## API 연동
+
+### `/api/courses`
+
+- 실제 러닝 코스 목록을 받아 홈 화면과 코스 전체 화면에 표시함.
+- 지도 화면에서 공원별 코스 그룹과 대표 마커를 만드는 데 사용함.
+
+### `/api/population`
+
+- 장소별 평균 유동인구와 혼잡도 데이터를 받아 지도 마커로 표시함.
+- 혼잡도에 따라 여유, 보통, 혼잡 마커를 구분함.
+
+### `/api/course-routes`
+
+- 코스별 경로 좌표 목록을 받아 지도 루트 표시에 사용함.
+- `course_id`를 기준으로 코스 데이터와 route 데이터를 매칭함.
+
+## 주요 구현 내용
+
+- Flask API 응답을 받아 실제 코스 데이터를 화면에 표시함.
+- Kakao Map API를 사용해 서대문구 지도와 공원 대표 마커를 표시함.
+- 공원 대표 마커 클릭 시 선택한 공원의 코스 리스트가 변경되도록 구현함.
+- 유동인구 혼잡도 마커와 공원 마커를 각각 관리해 서로 영향을 주지 않도록 구성함.
+- `course_id`를 기준으로 선택한 코스와 route 좌표 데이터를 매칭함.
+- 매칭된 좌표를 이용해 선택한 코스의 루트와 출발 및 도착 위치를 지도에 표시함.
+- `currentRun` state에 현재 러닝 중인 코스와 시작 시각을 저장함.
+- `RunningTimer`에서 시작 시각을 기준으로 경과 시간을 표시함.
+- 러닝 종료 시 결과를 `records` state에 추가하고 내 기록 화면에 표시함.
+
+## 실행 방법
+
+### 개발 환경에서 실행
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+개발 서버 실행 후 브라우저에서 Vite가 안내하는 주소로 접속함.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Docker Compose로 실행
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+프로젝트 루트 디렉터리에서 아래 명령어를 실행함.
+
+```bash
+docker compose up --build
 ```
+
+Docker Compose 실행 시 프론트엔드는 `http://localhost:3000`에서 확인함.
+
+## 참고
+
+- 러닝 기록은 DB에 저장하지 않고 프론트엔드의 `records` state에 저장함.
+- `localStorage`나 `sessionStorage`를 사용하지 않으므로 새로고침 시 러닝 기록이 초기화되는 구조임.
+- API 주소와 Kakao JavaScript 키는 Vite 환경 변수를 통해 설정함.
