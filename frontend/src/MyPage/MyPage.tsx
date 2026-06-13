@@ -23,6 +23,7 @@ function formatShortDuration(seconds: number) {
 }
 
 export default function MyPage({ records }: MyPageProps) {
+  // App에서 받은 기록을 합산해 총 거리, 총 시간, 최근 러닝 정보를 구함.
   const totalDistance = records.reduce((sum, record) => sum + record.distanceKm, 0);
   const totalSeconds = records.reduce((sum, record) => sum + record.durationSeconds, 0);
   const latestRunDate = records[0]?.startedAt || '-';
@@ -66,6 +67,7 @@ export default function MyPage({ records }: MyPageProps) {
         </div>
       ) : (
         <div className={styles.list}>
+          {/* 새 기록을 앞에 저장하므로 최근 러닝부터 순서대로 표시함. */}
           {records.map((record) => (
             <article key={record.id} className={styles.record}>
               <div>

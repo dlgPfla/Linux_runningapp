@@ -11,6 +11,7 @@ type Path = '/' | '/courses' | '/map' | '/mypage';
 
 export default function App() {
   const [path, setPath] = useState<Path>('/');
+  // 현재 진행 중인 러닝과 종료된 기록을 최상위에서 관리해 여러 화면이 함께 사용하도록 함.
   const [currentRun, setCurrentRun] = useState<RunningCourse | null>(null);
   const [records, setRecords] = useState<RunRecord[]>([]);
 
@@ -19,6 +20,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // 지도에서 고른 코스 정보를 currentRun에 저장해 타이머가 시작될 수 있게 함.
   function startRun(course: Course) {
     if (currentRun) {
       alert('이미 러닝 중인 코스가 있어요. 먼저 종료해주세요.');
@@ -34,6 +36,7 @@ export default function App() {
     });
   }
 
+  // 시작 시각과 현재 시각의 차이로 러닝 시간을 계산하고 records의 맨 앞에 추가함.
   function finishRun() {
     if (!currentRun) return;
 

@@ -16,6 +16,7 @@ function formatDuration(seconds: number) {
 export default function RunningTimer({ currentRun, onFinishRun }: RunningTimerProps) {
   const [now, setNow] = useState(0);
 
+  // 러닝 중일 때만 1초마다 현재 시각을 갱신하고, 종료되면 interval을 정리함.
   useEffect(() => {
     if (!currentRun) return undefined;
 
@@ -30,6 +31,7 @@ export default function RunningTimer({ currentRun, onFinishRun }: RunningTimerPr
 
   if (!currentRun) return null;
 
+  // 저장된 시작 시각을 기준으로 실제 경과 시간을 계산함.
   const elapsedSeconds = Math.max(0, Math.floor((now - currentRun.startedAt) / 1000));
 
   return (

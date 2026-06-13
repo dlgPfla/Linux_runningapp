@@ -82,6 +82,7 @@ type KakaoMapsWithRouteDrawing = KakaoMapsNamespace & {
 
 let kakaoSdkPromise: Promise<void> | null = null;
 
+// 같은 SDK 스크립트가 여러 번 추가되지 않도록 하나의 Promise를 재사용함.
 function loadKakaoMapSdk(appKey: string): Promise<void> {
   if (kakaoSdkPromise) return kakaoSdkPromise;
 
@@ -181,6 +182,7 @@ function getRouteWithEnoughPoints(route: CourseRoute | undefined) {
   return points.length >= 2 ? { ...route, points } : null;
 }
 
+// 같은 park_name을 가진 코스를 하나의 공원 마커로 표시하기 위해 묶는 과정임.
 function groupCoursesByPark(courses: CourseWithCoordinates[]): ParkCourseGroup[] {
   const groups = new Map<string, ParkCourseGroup>();
 
@@ -205,6 +207,7 @@ function groupCoursesByPark(courses: CourseWithCoordinates[]): ParkCourseGroup[]
 }
 
 export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
+  // 지도 DOM과 실제 Kakao Map 객체를 따로 보관해 마커와 화면 요소가 섞이지 않게 함.
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const kakaoMapRef = useRef<KakaoMapWithCamera | null>(null);
   const populationOverlaysRef = useRef<KakaoOverlayInstance[]>([]);
@@ -261,6 +264,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
 
   const displayedParkGroup = isRunningMode ? runningParkGroup : selectedParkGroup;
 
+  // route를 course_id로 바로 찾을 수 있도록 Map 형태로 정리함.
   const routeMap = useMemo(() => {
     const mapByCourseId = new Map<string, CourseRoute>();
     courseRoutes.forEach((route) => {
@@ -269,6 +273,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     return mapByCourseId;
   }, [courseRoutes]);
 
+  // 새 루트를 표시하기 전에 이전 선과 출발/도착 표시를 정리함.
   const clearRouteLayer = useCallback(() => {
     routePolylineRefs.current.forEach((line) => line.setMap(null));
     routePolylineRefs.current = [];
@@ -280,6 +285,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     setSelectedRouteMessage('');
   }, []);
 
+  // 위도와 경도를 지도 화면 좌표로 바꿔 SVG 루트 선의 점 목록을 만듦.
   const updateRouteSvgPath = useCallback((validPoints: ValidRoutePoint[]) => {
     if (!kakaoMapRef.current || !window.kakao?.maps || !mapContainerRef.current) return;
     if (validPoints.length < 2) {
@@ -347,6 +353,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     };
   }, [map, selectedRoutePoints, updateRouteSvgPath]);
 
+  // 유동인구 데이터를 받아 혼잡도 마커에 사용할 state에 저장함.
   useEffect(() => {
     let ignore = false;
 
@@ -375,6 +382,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     };
   }, []);
 
+  // 실제 코스 데이터를 받아 공원별 코스 목록과 대표 마커에 사용함.
   useEffect(() => {
     let ignore = false;
 
@@ -404,6 +412,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     };
   }, []);
 
+  // course_id로 코스와 연결할 수 있는 루트 좌표 데이터를 받아 저장함.
   useEffect(() => {
     let ignore = false;
 
@@ -433,6 +442,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     };
   }, []);
 
+  // 환경 변수의 키로 Kakao Map SDK를 불러온 뒤 지도 객체를 생성함.
   useEffect(() => {
     if (!KAKAO_KEY || !mapContainerRef.current) return;
 
@@ -481,6 +491,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     };
   }, []);
 
+  // population의 좌표마다 혼잡도 마커를 만들고 클릭 시 상세 정보를 표시함.
   useEffect(() => {
     const kakaoMaps = window.kakao?.maps;
     const currentMap = kakaoMapRef.current;
@@ -538,6 +549,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     };
   }, [map, population]);
 
+  // 공원별 대표 마커를 만들고, 클릭한 공원의 코스 목록으로 오른쪽 패널을 변경함.
   useEffect(() => {
     const kakaoMaps = window.kakao?.maps;
     const currentMap = kakaoMapRef.current;
@@ -597,6 +609,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     moveToPark(group);
   };
 
+  // 선택한 course_id와 route 데이터를 매칭해 루트 점, 출발점, 도착점을 지도에 표시함.
   const handleShowRoute = useCallback((course: CourseWithCoordinates) => {
     console.log('map container ref:', mapContainerRef.current);
     console.log('kakao map ref:', kakaoMapRef.current);
@@ -671,6 +684,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
       return true;
     });
 
+    // Kakao Map 위에 작은 주황색 점을 배치해 루트 위치를 함께 알아보기 쉽게 함.
     displayPoints.forEach((point) => {
       const routePointOverlay = new kakaoMaps.CustomOverlay({
         position: new kakaoMaps.LatLng(point.latitude, point.longitude),
@@ -686,6 +700,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
 
     console.log('custom route points drawn:', displayPoints.length);
 
+    // 전체 path의 첫 점과 마지막 점을 사용해 출발/도착 위치를 표시함.
     const startOverlay = new kakaoMaps.CustomOverlay({
       position: path[0],
       content: '<div style="position:relative;z-index:40;background:#3F6F24;color:white;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,0.25);">출발</div>',
@@ -719,6 +734,7 @@ export default function MapPage({ currentRun, onStartRun }: MapPageProps) {
     setSelectedRouteMessage('주황색 점과 반투명 선으로 선택한 대표 루트를 표시하고 있습니다.');
   }, [clearRouteLayer, courseRoutes, updateRouteSvgPath]);
 
+  // 러닝이 시작되면 해당 코스의 공원과 루트를 자동으로 선택하고, 종료 시 루트를 정리함.
   useEffect(() => {
     if (!currentRun) {
       if (!previousRunIdRef.current) return undefined;
