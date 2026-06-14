@@ -2,15 +2,37 @@ import { useEffect, useMemo, useState } from 'react';
 import type { MouseEvent } from 'react';
 import styles from './CoursesPage.module.css';
 import { fetchCourses } from '../api/coursesApi';
-import type { Course, FilterState, FilterKey } from '../types';
+import type { Course, FilterState, FilterKey, RunningCourse } from '../types';
 import { MOCK_COURSES } from '../data/mockData';
 
 const LEVEL_KO: Record<string, string> = { easy: '초급', medium: '중급', hard: '고급' };
 const CROWD_KO: Record<string, string> = { low: '한산', medium: '보통', high: '혼잡', unknown: '미확인' };
-const DEFAULT_COURSE_IMAGE = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80';
+const DEFAULT_COURSE_IMAGES = [
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
+  'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=800&q=80',
+  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
+  'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80',
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80',
+  'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&q=80',
+  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80',
+] as const;
+
+interface CoursesPageProps {
+  currentRun: RunningCourse | null;
+  onStartRun: (course: Course) => void;
+}
 
 function getCourseImage(course: Course) {
-  return course.image_url || DEFAULT_COURSE_IMAGE;
+  if (course.image_url) return course.image_url;
+
+  // 코스 식별값으로 고정된 index를 만들어 새로고침 후에도 같은 이미지를 사용함.
+  const imageKey = `${course.course_id}-${course.park_name}-${course.course_type}`;
+  const imageIndex = Array.from(imageKey)
+    .reduce((total, character) => total + character.charCodeAt(0), 0)
+    % DEFAULT_COURSE_IMAGES.length;
+
+  return DEFAULT_COURSE_IMAGES[imageIndex];
 }
 
 function getCourseLocation(course: Course) {
@@ -36,9 +58,24 @@ function FilterOption({ label, active, onClick }: { label: string; active: boole
 // ══════════════════════════════════════
 // 코스 상세 모달
 // ══════════════════════════════════════
-function CourseModal({ course, onClose }: { course: Course; onClose: () => void }) {
+function CourseModal({
+  course,
+  currentRun,
+  onClose,
+  onStartRun,
+}: {
+  course: Course;
+  currentRun: RunningCourse | null;
+  onClose: () => void;
+  onStartRun: (course: Course) => void;
+}) {
   function onBackdrop(e: MouseEvent) {
     if (e.target === e.currentTarget) onClose();
+  }
+
+  function handleStartRun() {
+    onStartRun(course);
+    onClose();
   }
 
   const crowdCardStyle =
@@ -116,7 +153,14 @@ function CourseModal({ course, onClose }: { course: Course; onClose: () => void 
 
           {/* 버튼 */}
           <div className={styles.modalBtns}>
-            <button type="button" className={styles.btnPrimary}>이 코스 러닝 시작</button>
+            <button
+              type="button"
+              className={styles.btnPrimary}
+              disabled={Boolean(currentRun)}
+              onClick={handleStartRun}
+            >
+              {currentRun ? '러닝 진행 중' : '이 코스 러닝 시작'}
+            </button>
             <button type="button" className={styles.btnSecondary} onClick={onClose}>목록으로 돌아가기</button>
           </div>
         </div>
@@ -176,7 +220,7 @@ function CourseRow({ course, onClick }: { course: Course; onClick: () => void })
 // ══════════════════════════════════════
 // CoursesPage
 // ══════════════════════════════════════
-export default function CoursesPage() {
+export default function CoursesPage({ currentRun, onStartRun }: CoursesPageProps) {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -238,7 +282,14 @@ export default function CoursesPage() {
   return (
     <div className={styles.page}>
       {/* 모달 */}
-      {selected && <CourseModal course={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <CourseModal
+          course={selected}
+          currentRun={currentRun}
+          onClose={() => setSelected(null)}
+          onStartRun={onStartRun}
+        />
+      )}
 
       {/* 페이지 헤더 */}
       <div className={styles.header}>

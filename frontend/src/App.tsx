@@ -20,7 +20,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // 지도에서 고른 코스 정보를 currentRun에 저장해 타이머가 시작될 수 있게 함.
+  // 지도나 코스 전체 화면에서 고른 코스를 currentRun에 저장해 타이머가 시작될 수 있게 함.
   function startRun(course: Course) {
     if (currentRun) {
       alert('이미 러닝 중인 코스가 있어요. 먼저 종료해주세요.');
@@ -63,7 +63,9 @@ export default function App() {
     <>
       <Layout currentPath={path} onNavigate={navigate}>
         {path === '/'        && <HomePage onNavigate={navigate} />}
-        {path === '/courses' && <CoursesPage />}
+        {path === '/courses' && (
+          <CoursesPage currentRun={currentRun} onStartRun={startRun} />
+        )}
         {path === '/map'     && <MapPage currentRun={currentRun} onStartRun={startRun} />}
         {path === '/mypage'  && <MyPage records={records} />}
       </Layout>
